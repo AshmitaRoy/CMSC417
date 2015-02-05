@@ -32,9 +32,13 @@ int main (int argc, char *argv[]) {
     }
 
     printf("\n");
-    return 0;
+    
+    /* takes in a string of len 100 from standard in (first consecuative non-Whitespace) */
+    char str[100];    	
+    printf( "Enter a value :");
+    scanf("%s ", str);
 
-
-
+    printf( "\nYou entered: %s \n" + "\n", str);
+    printf("\n");
 
 }
