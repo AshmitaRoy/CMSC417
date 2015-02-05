@@ -34,6 +34,8 @@ tcp/ip sockets in c: 2nd edition
 computer networks 5th edition
 
 
+
+
 ## Computer networking
 - Computer Bus: is a communication system that transfers data between components inside a computer, or between computers. This expression covers all related hardware components (wire, optical fiber, etc.) and software, including communication protocols.
 
@@ -61,12 +63,4 @@ computer networks 5th edition
 - Tablets, laptops, smart phones are popular devices; wifi, 3g cellular provide wireless connectivity
 - Mobile users communicate via voice text consume conent, video and web, and use sensors
 
-
-# Lecture 02
-02-03-2015
-
-
-## Reference Models
-![](http://1.bp.blogspot.com/-XxGg1fOQ-mo/T8zFKiUiNcI/AAAAAAAAB1o/EXDIjbc1QuU/s1600/OSI-TCP.png)
-![](http://3.bp.blogspot.com/_wH4q7agRmuY/SwWKBPIHUhI/AAAAAAAAAG8/mg9xDu3ICrw/s1600/TCP+IP1.bmp)
 

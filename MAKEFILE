@@ -1,0 +1,43 @@
+# ------------------------------------------------
+# Generic Makefile
+#
+# Author: Yanick Rochon
+# Date  : 2010-11-05
+#
+# Changelog :
+#   0.01 - first version
+# ------------------------------------------------
+
+# project name (generate executable with this name)
+TARGET   = p1
+
+CC       = gcc -c
+# compiling flags here
+CFLAGS   = -std=c99 -Wall -I.
+
+LINKER   = gcc -o
+# linking flags here
+LFLAGS   = -std=c99 -Wall
+
+SOURCES  := $(wildcard *.c)
+#INCLUDES := $(wildcard *.h)
+OBJECTS  := $(SOURCES:.c='*.o')
+rm       = rm -f
+
+$(TARGET): obj
+	$(LINKER) $(TARGET) $(LFLAGS) $(OBJECTS)
+	echo "Linking complete!"
+
+# OLD obj
+#obj: $(SOURCES) $(INCLUDES)
+#	@$(CC) $(CFLAGS) $(SOURCES)
+#	@echo "Compilation complete!"
+
+obj: $(SOURCES) 
+	$(CC) $(CFLAGS) $(SOURCES)
+	echo "Compilation complete!"
+
+
+clean:
+	rm $(TARGET) $(OBJECTS)
+	echo "Cleanup complete!"

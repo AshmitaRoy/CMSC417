@@ -1,0 +1,21 @@
+# Comments on Program Assignment 1: echo client!
+
+# __Deadline Febuary 15__ or 02-15-2015
+
+## test and submit on nrl CORE
+## C-Progam (TCP Socket):
+- Must be in C
+1. connect TCP argv[1] with port argv[2]
+2. Read stdin and write that stuff to TCP (argv[1]) socket until stdin ends (end of file <- whats this character ctrl-x or something?)
+3. Shutdown socket for writing ($ man shutdown	to explain how)
+4. Read what the TCP socket has and write that stuff to stdout until the socket ends (end of file because the other side has closed). __NO ADDITITIONAL OUTPUT SHOULD BE SENT TO STDOUT__
+5. _Exit!!!!_: IMPORTANT if you dont exit, the tests will fail.
+6. Name the file "p1.c" and the executable "p1".
+
+## Deliverables (shell script, MAKEFILE)
+### Shell Script (tests.sh)
+__THIS FILE MUST__
+- Compile code using MAKEFILE
+- Read a comma seprated list of < host >, < port >, < data >, < name > (with no header line @ beginning)
+ - Should be done using first file passed in as an argument (I think it should be $ tests.sh conn_list.csv  // or something of the sort	
+- For each line that is read from the file the program (shell script: tests.sh) should run echo client with the host and port, pipe "data" (the string that is sent by your echo client) into your client, and append output of your client to < name >.out	(creating < name >.out if it does not exist)
