@@ -39,6 +39,10 @@ int main (int argc, char *argv[]) {
     scanf("%s ", str);
 
     printf( "\nYou entered: %s \n" + "\n", str);
-    printf("\n");
+    
+
+
+
+    
 
 }
