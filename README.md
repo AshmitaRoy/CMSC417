@@ -70,3 +70,21 @@ computer networks 5th edition
 ![](http://1.bp.blogspot.com/-XxGg1fOQ-mo/T8zFKiUiNcI/AAAAAAAAB1o/EXDIjbc1QuU/s1600/OSI-TCP.png)
 ![](http://3.bp.blogspot.com/_wH4q7agRmuY/SwWKBPIHUhI/AAAAAAAAAG8/mg9xDu3ICrw/s1600/TCP+IP1.bmp)
 
+# Lecture 03
+02-05-2015
+
+## Clients are not always humans
+- Ex Spider client
+- Ex Web Crawler (or spider)
+
+## Server side
+- Always on
+- Needs address
+- need to know the service process (address)
+
+- sending data
+    - ssize_twrite(int sock ...
+- Receving data
+    - ssize_tread(int sock ...
+- Closing the socket 
+    - int close(int

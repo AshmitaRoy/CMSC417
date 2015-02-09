@@ -21,7 +21,8 @@ LFLAGS   = -std=c99 -Wall
 
 SOURCES  := $(wildcard *.c)
 #INCLUDES := $(wildcard *.h)
-OBJECTS  := $(SOURCES:.c='*.o')
+OBJECTS  := $(SOURCES:.c=*.o)
+EDITED_FILES  := $(wildcard *~)
 rm       = rm -f
 
 $(TARGET): obj
@@ -39,5 +40,5 @@ obj: $(SOURCES)
 
 
 clean:
-	rm $(TARGET) $(OBJECTS)
+	rm $(TARGET) $(OBJECTS) $(EDITED_FILES)
 	echo "Cleanup complete!"
