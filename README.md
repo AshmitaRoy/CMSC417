@@ -4,7 +4,7 @@ CMSC417 Computer Networks
 Ashok K. Agrawala
 - 4149 avw
 - agrawala@cs.umd.edu
-
+- http://www.cs.umd.edu/class/spring2015/cmsc417/
 TA andrew Pachulski
 
 piazza page
@@ -88,3 +88,12 @@ computer networks 5th edition
     - ssize_tread(int sock ...
 - Closing the socket 
     - int close(int
+    
+# Lecture 03
+02-10-2015
+
+
+
+
+
+
