@@ -1,6 +1,7 @@
 # Dylan Zingler
 # Project 01 CMSC 417 NETWORKING
 # Credit given to Yanick Rochon
+
 # project name (generate executable with this name)
 TARGET   = p1
 
@@ -35,7 +36,6 @@ obj: $(SOURCES)
 test:
 	./tests/test1.sh
 	
-
 zip:
 	zip p1.zip ./tests.sh $(SOURCES) ./MAKEFILE
 

@@ -17,7 +17,7 @@ SOURCES  := $(wildcard *.c)
 OBJECTS  := $(SOURCES:.c=*.o)
 EDITED_FILES  := $(wildcard *~)
 TESTS := $(wildcard test*.sh)
-rm       = rm -rf
+rm       = rm -f
 
 $(TARGET): obj
 	$(LINKER) $(TARGET) $(LFLAGS) $(OBJECTS)
