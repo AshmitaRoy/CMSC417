@@ -13,9 +13,11 @@ called by using
 
  */
 
+
 int main (int argc, char *argv[]) {
 
-    if (argc < 3) {
+    /* Argument count must be 3 */
+    if (argc != 3) {
         fprintf(stderr,"usage %s hostname port\n", argv[0]);
         exit(0);
     }
@@ -23,7 +25,7 @@ int main (int argc, char *argv[]) {
     int i=0;
     /*printf("\ncmdline args count=%s", argc);*/
 
-    /* First argument is executable name only */ 
+    /* First argument is executable name */ 
     printf("\nexe name=%s", argv[0]);
 
     for (i=1; i< argc; i++) {
@@ -38,7 +40,7 @@ int main (int argc, char *argv[]) {
     printf( "Enter a value :");
     scanf("%s ", str);
 
-    printf( "\nYou entered: %s \n" + "\n", str);
+    printf( "\nYou entered: %s \n", str);
     
 
 
