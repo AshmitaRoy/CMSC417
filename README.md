@@ -15,6 +15,8 @@ distances on a computer are very short. but it is the same idea.
 moving thinigs back and forth, sometimes through a filter though it is just that.
 networks have greater distances
 
+![Memory Sizes](https://mandalaygazette.com/wp-content/uploads/2014/01/prefixestableel3.jpg)
+
 
 ## course expectations
 understande network protocols
@@ -94,6 +96,49 @@ computer networks 5th edition
 
 
 
+# Lecture 04
+02-12-2015
 
-
-
+##IP Packet Structure
+![IP Packet Structure](http://www.eg.bucknell.edu/~cs363/2014-spring/labs/ip-pkt-header.jpg)
+-IP packet size 2^16 bytes of payload, 64 Gig!
+- Fragmentation Info (32bits) (Splits packet into smaller ones, in case the link cannot handle large ones, this is transparent to the end computer)
+ - Packet identifier, flags, and fragement offset
+ - supports dividing a large IP packet into fragments
+ - ... in case a link cannot hande a large IP packet
+- Time-To-Live(TTL  - 8bits)
+ - Used to identify packets stuck in forwarding loops
+ - ...and eventually discard them from the network.
+ - Each router along the path decrements the TTL
+ - "TTL exceeded" sent when TTL reaches 0.
+- Protocol (8bits)
+ - identifies the higher-level protocol
+  - eg. 6 for TCP (Transmission Control Protocol)
+  - eg 17 for UDP (User Datagram Protocol)
+- Checksum (16 bits)
+ - Sum of all 16-bit words in the IP packet header
+ - if any bits of the header are corrupted in transit
+ - ..the check sum won't match at receiving host
+- Two IP Addresses
+ - Source IP address (32bits)
+  - Unique identifier for the sending host
+  - Recipient can decide wheither to accept the packet
+  - Enables recipiant to send a reply back to source
+ - Destination Address (32bits)
+  - Unique identifier for the receving host 
+  - allows each node to make forwarding decisions. 
+ 
+### Are 32-bit address enough
+- not all that many unique addresses
+ - 2^32 = 4,294,967,296 (just over four billion)
+ - Plus, some reserved for special purposes
+ - and, addresses are allocated in larger blocks
+- And many devices need IP addresses
+ - Computers, PDA's, routers, tanks, toasters
+- Long-term solution: a larger address space
+ - IPv6 has 128-bit addresses
+  
+## Hop-by-hop Packet Forwarding
+- Each router has a forwarding table
+ - maps destination addresses to outgoing interfaces
+## 
