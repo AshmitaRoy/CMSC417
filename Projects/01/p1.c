@@ -157,10 +157,14 @@ int main (int argc, char *argv[]) {
     /* Output echoed String */
     printf("Echo Response: %s\n", buffer);
     
+    if (shutdown(conn_s, 2) == 0){
+        printf("shutdown successful")
+    } else{
+        printf("Shutdown unsuccessful")
+        }
+    
     return EXIT_SUCCESS;
-    
-    
-    
+           
     /* takes in a string of len 100 from standard in (first consecuative non-Whitespace) 
     char str[100];    	
     printf( "Enter a value :");
