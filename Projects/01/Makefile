@@ -8,7 +8,7 @@ TARGET   = p1
 CC       = gcc -c
 # compiling flags here
 #CFLAGS   = -std=c99 -Wall -I. -ansi -pedantic-errors  -D_BSD_SOURCE
-CFLAGS = -ansi -pedantic-errors -Wall -Werror -pedantic -D_BSD_SOURCE -std=c99
+CFLAGS = -ansi -pedantic-errors -Wall -Werror -pedantic -D_BSD_SOURCE -std=c99 -g 
 
 
 
@@ -37,9 +37,6 @@ $(TARGET): obj
 obj: $(SOURCES) 
 	$(CC) $(CFLAGS) $(SOURCES) 
 	echo "Compilation complete!"
-
-
-
 
 test:
 	./tests/test1.sh
