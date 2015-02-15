@@ -7,9 +7,12 @@
 #include <unistd.h>
 #include <errno.h>
 #include <sys/ioctl.h>
+#include <fcntl.h>
+#include <sys/time.h>
 
 /*  Global constants  */
 #define MAX_LINE           (2000)
+#define CHUNK_SIZE         (8192)
 
 /***
 Author: Dylan Zingler
@@ -70,60 +73,109 @@ ssize_t ReadSock(int sockd, void *vptr) {
     /* Good loop */
     while (1){
         rc = read(sockd, &c, 1);
-        printf("got here");        
-        /* Read Value was Good   */
-        if (rc == 1){
-            *buffer++ = c;
-            
-            if ( c == EOF )
-	    	    break;
+        /*printf("%s", rc);        */
+        
         /* Read Value was zero, server done sending message */	    	    
-        } else if (rc == 0){
-            if ( n == 1 )
+        if (rc == 0){
+            if ( n == 1 ){
+                *buffer = 0;            
 	    	    return 0;
-	        else
+	        } else
 	    	    break;
-	    	    
-	    /* Read Value stated that there was an error */
-        } else {
-	        if ( errno == EINTR )
-	    	    continue;
+        } else if (rc != 1) {
+	        /*if ( errno == EINTR )
+	    	    continue;*/
+	    	*buffer = 0;
 	        return -1;
-	    }
+	        
+        /* Read Value was Good   */	    
+	    } else if (rc == 1) {   
+            *buffer++ = c;
+            printf("%s" , &c);                      
+        }
 	    n++;          
-    }
-    
-    
+    }        
     
     *buffer = 0;
     return n;
-
 }
 
-ssize_t SockReader(int sockd, void *vptr){
-    /*ssize_t n, rc;*/
-    char    c, *buffer;
-    int count = 0;
-    buffer = vptr;
-
-
-    int len = 0;
-    ioctl(sockd, FIONREAD, &len);
-    if (len > 0) {
-        len = read(sockd, &c, 1);
-        *buffer++ = c;
-        count += 1;
+int receive_basic(int s)
+{
+    int size_recv , total_size= 0;
+    /*int CHUNK_SIZE = 512;*/
+    char chunk[CHUNK_SIZE]; 
+     
+    //loop
+    while(1)
+    {
+        memset(chunk ,0 , CHUNK_SIZE);  //clear the variable
+        if((size_recv =  recv(s , chunk , CHUNK_SIZE , 0) ) <= 0)
+        {
+            break;
+        }
+        else
+        {
+            total_size += size_recv;
+            printf("%s" , chunk);
+        }
     }
-    
-    printf("LENGTH OF SOCKET DATA IS: %d", count);
-    return len;
+     
+    return total_size;
 }
 
 
-
+int recv_timeout(int s , int timeout)
+{
+    int size_recv , total_size= 0;
+    struct timeval begin , now;
+    char chunk[CHUNK_SIZE];
+    double timediff;
+     
+    //make socket non blocking
+    fcntl(s, F_SETFL, O_NONBLOCK);
+     
+    //beginning time
+    gettimeofday(&begin , NULL);
+     
+    while(1)
+    {
+        gettimeofday(&now , NULL);
+         
+        //time elapsed in seconds
+        timediff = (now.tv_sec - begin.tv_sec) + 1e-6 * (now.tv_usec - begin.tv_usec);
+         
+        //if you got some data, then break after timeout
+        if( total_size > 0 && timediff > timeout )
+        {
+            break;
+        }
+         
+        //if you got no data at all, wait a little longer, twice the timeout
+        else if( timediff > timeout*2)
+        {
+            break;
+        }
+         
+        memset(chunk ,0 , CHUNK_SIZE);  //clear the variable
+        if((size_recv =  recv(s , chunk , CHUNK_SIZE , 0) ) < 0)
+        {
+            //if nothing was received then we want to wait a little before trying again, 0.1 seconds
+            usleep(100000);
+        }
+        else
+        {
+            total_size += size_recv;
+            printf("%s" , chunk);
+            //reset beginning time
+            gettimeofday(&begin , NULL);
+        }
+    }
+     
+    return total_size;
+}
 
 /*  Write a line to a socket  */
-
 ssize_t Writeline(int sockd, const void *vptr, size_t n) {
     size_t      nleft;
     ssize_t     nwritten;
@@ -214,12 +266,15 @@ int main (int argc, char *argv[]) {
     /* Send string to echo server, and retrieve response */
     Writeline(conn_s, buffer, strlen(buffer));
 /*    Readline(conn_s, buffer, MAX_LINE-1);*/
-    ReadSock(conn_s, buffer);
+/*    ReadSock(conn_s, buffer);   */
 /*    SockReader(conn_s, buffer);*/
+    receive_basic(conn_s);
+/*    recv_timeout(conn_s, 4);*/
     
     /* Output echoed String */
     printf("Echo Response: %s\n", buffer);
     
+    /* Shutting down socket */
     if (shutdown(conn_s, 2) == 0){
         printf("shutdown successful");
     } else{
@@ -227,15 +282,6 @@ int main (int argc, char *argv[]) {
         }
     
     return EXIT_SUCCESS;
-           
-    /* takes in a string of len 100 from standard in (first consecuative non-Whitespace) 
-    char str[100];    	
-    printf( "Enter a value :");
-    scanf("%s ", str);
-
-    printf( "\nYou entered: %s \n", str);
-    
-    */
 
 }
 
