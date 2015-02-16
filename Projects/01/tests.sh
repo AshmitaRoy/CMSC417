@@ -15,4 +15,4 @@ do
     # Run Program with specified variables, pump output to file
     $data | ./p1 $host $port > $name.out
 
-done < "$csv_file"
+done < $1

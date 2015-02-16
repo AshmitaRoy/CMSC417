@@ -39,12 +39,9 @@ int receive_basic(int s)
     while(1)
     {
         memset(chunk ,0 , CHUNK_SIZE);  
-        if((size_recv =  recv(s , chunk , CHUNK_SIZE , 0) ) <= 0)
-        {
+        if((size_recv =  recv(s , chunk , CHUNK_SIZE , 0) ) <= 0){
             break;
-        }
-        else
-        {
+        } else {
             total_size += size_recv;
             printf("%s" , chunk);
         }
