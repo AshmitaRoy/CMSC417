@@ -1,3 +1,12 @@
+/***
+Author: Dylan Zingler
+Date: 02-02-2015
+Purpose: TCP client side socket
+Usage: $ ./p1 <host> <port>
+Then enter a message to echo
+Example: $ echo GET / | ./p1 www.google.com 80
+***/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,36 +18,27 @@
 #include <sys/ioctl.h>
 #include <fcntl.h>
 #include <sys/time.h>
+#include <netdb.h>
+#include <netinet/in.h>
 
 /*  Global constants  */
 #define MAX_LINE           (2000)
 #define CHUNK_SIZE         (32768)
 
-/***
-Author: Dylan Zingler
-Date: 02-02-2015
-Purpose: TCP client side socket
-
-Credit to Paul Griffiths, 1999
-***/
-
-/* 
-called by using
-./p1 <host> <port>
-Then a message must be piped to the function to echo it
-
- */
-
+/* receive_basic
+credit given to Silver Moon
+http://www.binarytides.com/receive-full-data-with-recv-socket-function-in-c/
+*/
 int receive_basic(int s)
 {
     int size_recv , total_size= 0;
     /*int CHUNK_SIZE = 512;*/
     char chunk[CHUNK_SIZE]; 
      
-    //loop
+    /*loop*/
     while(1)
     {
-        memset(chunk ,0 , CHUNK_SIZE);  //clear the variable
+        memset(chunk ,0 , CHUNK_SIZE);  
         if((size_recv =  recv(s , chunk , CHUNK_SIZE , 0) ) <= 0)
         {
             break;
@@ -49,10 +49,13 @@ int receive_basic(int s)
             printf("%s" , chunk);
         }
     }
-     
     return total_size;
 }
 
+/* 
+credit given to Paul Griffiths 
+http://www.paulgriffiths.net/program/c/echoclnt.php
+Some of this code was taken from his echoclnt.c */
 /*  Write a line to a socket  */
 ssize_t Writeline(int sockd, const void *vptr, size_t n) {
     size_t      nleft;
@@ -76,11 +79,15 @@ ssize_t Writeline(int sockd, const void *vptr, size_t n) {
     return n;
 }
 
+/* 
+credit given to Paul Griffiths 
+http://www.paulgriffiths.net/program/c/echoclnt.php
+Some of this code was modeled off his echoclnt.c */
 int main (int argc, char *argv[]) {
 
     int       conn_s;                /*  connection socket         */
     short int port;                  /*  port number               */
-    struct    sockaddr_in servaddr;  /*  socket address structure  */
+    struct    sockaddr_in servaddr, sa;  /*  socket address structure  */
     char      buffer[MAX_LINE];      /*  character buffer          */
     char     *szAddress;             /*  Holds remote IP address   */
     char     *szPort;                /*  Holds remote port         */
@@ -95,6 +102,43 @@ int main (int argc, char *argv[]) {
     /* Setting command line args */
     szAddress = argv[1];
     szPort = argv[2];
+    
+    /* Checking if Address is Dotted Quad */
+    if (inet_pton(AF_INET, szAddress, &(sa.sin_addr)) != 1){
+    
+        /* Following code block modeled from book 
+        TCP/IP Sockets in C 
+        (GetAddrInfo.c and PrintSocketAddr() function)
+         */
+        void *numericAddress;        
+        char addrBuffer[INET6_ADDRSTRLEN];   
+    
+        struct addrinfo addrCriteria;
+        memset(&addrCriteria, 0, sizeof(addrCriteria));
+        addrCriteria.ai_family = AF_INET;
+        addrCriteria.ai_socktype = SOCK_STREAM;
+        addrCriteria.ai_protocol = IPPROTO_TCP;
+        
+        struct addrinfo *addrList;
+        int rtnVal = getaddrinfo(szAddress, szPort, &addrCriteria, &addrList);
+        
+        if (rtnVal != 0){
+            printf("getaddrinfo() did not work properly");
+            exit(1);
+        }
+        
+        for (struct addrinfo *addr = addrList; addr != NULL; addr = addr->ai_next){
+            numericAddress = &((struct sockaddr_in *) addr->ai_addr)->sin_addr;
+            
+            if (inet_ntop(addr->ai_addr->sa_family, numericAddress, addrBuffer, sizeof(addrBuffer)) == NULL)
+                printf("invalid address could not convert");
+            else {
+                /*printf("address is: %s", addrBuffer);*/
+                szAddress = addrBuffer;
+                break;                
+            }
+        }
+    }
     
     /* Setting the remote port */
     port = strtol(szPort, &endptr, 0);
@@ -135,11 +179,12 @@ int main (int argc, char *argv[]) {
 
     /* Shutting down socket */
     if (shutdown(conn_s, 2) == 0){
-        /*printf("shutdown successful");*/
+        /* printf("shutdown successful");*/
     } else{
-/*        printf("Shutdown unsuccessful");*/
+        /* printf("Shutdown unsuccessful");*/
     }
     
+    exit(0);
     return EXIT_SUCCESS;
 }
 

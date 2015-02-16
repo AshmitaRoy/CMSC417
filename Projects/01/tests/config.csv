@@ -1,0 +1,5 @@
+173.194.123.6,80,echo GET /,googler.txt
+127.0.0.1,5555,echo "wowwzers what a test",localhost.txt
+192.30.252.129,80,echo GET /,github.txt
+23.235.46.133,80,echo GET /zinglax/CMSC417/master/Projects/01/p1.c,github2.txt
+208.86.224.90,80,echo GET /adventure/221baker.txt,textfile.txt

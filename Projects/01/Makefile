@@ -1,49 +1,46 @@
 # Dylan Zingler
 # Project 01 CMSC 417 NETWORKING
+
 # Credit given to Yanick Rochon
+# Some of the format/variables were taken for linking and compiling the code
 
-# project name (generate executable with this name)
+# Variables
 TARGET   = p1
+rm       = rm -f
 
+# Compiler
 CC       = gcc -c
-# compiling flags here
-#CFLAGS   = -std=c99 -Wall -I. -ansi -pedantic-errors  -D_BSD_SOURCE
-CFLAGS = -ansi -pedantic-errors -Wall -Werror -pedantic -D_BSD_SOURCE -std=c99 -g 
+CFLAGS = -ansi -pedantic-errors -Wall -Werror -pedantic -D_BSD_SOURCE -std=gnu99 -g 
 
-
-
+# Linker
 LINKER   = gcc -o
-# linking flags here
-#LFLAGS   = -std=c99 -Wall -D_BSD_SOURCE
-LFLAGS = -ansi -pedantic-errors -Wall -Werror -pedantic -D_BSD_SOURCE -std=c99
+LFLAGS = -ansi -pedantic-errors -Wall -Werror -pedantic -D_BSD_SOURCE -std=gnu99
 
-
+# File Groups
 SOURCES  := $(wildcard *.c)
-#INCLUDES := $(wildcard *.h)
 OBJECTS  := $(SOURCES:.c=*.o)
 EDITED_FILES  := $(wildcard *~)
 TESTS := $(wildcard test*.sh)
-rm       = rm -f
+OUTPUT_FILES := $(wildcard *.out)
 
+# Generate Target (LINKING STAGE)
 $(TARGET): obj
 	$(LINKER) $(TARGET) $(LFLAGS) $(OBJECTS)
 	echo "Linking complete!"
 
-# OLD obj
-#obj: $(SOURCES) $(INCLUDES)
-#	$(CC) $(CFLAGS) $(SOURCES)
-#	echo "Compilation complete!"
-
+# Compiling Stage (Generatingv.o Files)
 obj: $(SOURCES) 
 	$(CC) $(CFLAGS) $(SOURCES) 
 	echo "Compilation complete!"
 
+# Testing   
 test:
-	./tests/test1.sh
-	
-zip:
-	zip p1.zip ./tests.sh $(SOURCES) ./MAKEFILE
+	./tests.sh
 
+# Compression	
+zip:
+	zip $(TARGET) ./tests.sh $(SOURCES) ./Makefile config.csv
+# Clean-Up
 clean:
-	@$(rm) $(TARGET) $(OBJECTS) $(EDITED_FILES)	
-	@echo "Cleanup complete!"
+	$(rm) $(TARGET) $(OBJECTS) $(EDITED_FILES) $(OUTPUT_FILES)
+	echo "Cleanup complete!"
