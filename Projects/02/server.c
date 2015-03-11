@@ -25,7 +25,7 @@ void HandleTCPClient(int clntSocket);   /* TCP client handling function */
 credit given to Silver Moon
 http://www.binarytides.com/receive-full-data-with-recv-socket-function-in-c/
 */
-char receive_basic(int s)
+int receive_basic(int s)
 {
     int size_recv , total_size= 0;
     /*int CHUNK_SIZE = 512;*/
@@ -57,7 +57,7 @@ char receive_basic(int s)
 
     printf("out of do while loop");
 
-    return chunk;
+    return total_size;
 }
 
 int main(int argc, char *argv[])
