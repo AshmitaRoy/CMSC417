@@ -15,7 +15,7 @@ Usage:
 #include <netdb.h>
 #include "common.h"	/* for Given Variables from common file */
 
-#define CHUNK_SIZE         (32768)
+#define CHUNK_SIZE         (255)
 
 /**#define MAXPENDING 5 */
 
@@ -25,24 +25,39 @@ void HandleTCPClient(int clntSocket);   /* TCP client handling function */
 credit given to Silver Moon
 http://www.binarytides.com/receive-full-data-with-recv-socket-function-in-c/
 */
-int receive_basic(int s)
+char receive_basic(int s)
 {
     int size_recv , total_size= 0;
     /*int CHUNK_SIZE = 512;*/
-    char chunk[CHUNK_SIZE]; 
-     
-    /*loop*/
-    while(1)
+    char chunk[CHUNK_SIZE];      
+
+    do 
     {
         memset(chunk ,0 , CHUNK_SIZE);  
-        if((size_recv =  recv(s , chunk , CHUNK_SIZE , 0) ) <= 0){
+        size_recv = 0;
+        size_recv =  recv(s , chunk , CHUNK_SIZE , 0);
+	    printf("Chuck Recieved Size: %d", size_recv);
+
+        if (size_recv <= 0) {
+            printf("leaving Loop");
             break;
-        } else {
-            total_size += size_recv;
-            printf("%s" , chunk);
         }
+
+        total_size  += size_recv;
+        printf("Here is the message: %s", chunk);        
+
+        
+        if (total_size >= CHUNK_SIZE){
+            break;
+        }
+        size_recv = 0;
+
     }
-    return total_size;
+    while (size_recv > 0);
+
+    printf("out of do while loop");
+
+    return chunk;
 }
 
 int main(int argc, char *argv[])
@@ -117,9 +132,10 @@ int main(int argc, char *argv[])
         printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
 
     	/*ssize_t numBytesRcvd = recv(clntSock, buffer, BUFSIZE, 0);*/
-		msg_size = receive_basic(clntSock);
+	    msg_size = receive_basic(clntSock);
         printf("Message size is: %d", msg_size);
-
+        printf("hello");
+        break;
         
 
 
