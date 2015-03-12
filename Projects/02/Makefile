@@ -22,6 +22,7 @@ OBJECTS  := $(SOURCES:.c=*.o)
 EDITED_FILES  := $(wildcard *~)
 TESTS := $(wildcard test*.sh)
 OUTPUT_FILES := $(wildcard *.out)
+TEXT_FILES := $(wildcard *.txt)
 
 # Generate Target (LINKING STAGE)
 $(TARGET): obj
@@ -42,5 +43,5 @@ zip:
 	zip $(TARGET) ./tests.sh $(SOURCES) ./Makefile config.csv
 # Clean-Up
 clean:
-	$(rm) $(TARGET) $(OBJECTS) $(EDITED_FILES) $(OUTPUT_FILES)
+	$(rm) $(TARGET) $(OBJECTS) $(EDITED_FILES) $(OUTPUT_FILES) $(TEXT_FILES)
 	echo "Cleanup complete!"

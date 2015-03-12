@@ -36,15 +36,13 @@ char *receive_basic(int s)
         memset(chunk ,0 , CHUNK_SIZE);  
         size_recv = 0;
         size_recv =  recv(s , chunk , CHUNK_SIZE , 0);
-	    printf("Chuck Recieved Size: %d", size_recv);
 
         if (size_recv <= 0) {
-            printf("leaving Loop");
             break;
         }
 
         total_size  += size_recv;
-        printf("Here is the message: %s", chunk);        
+
 
         
         return chunk;
@@ -77,11 +75,8 @@ int gen_cookie(char * client_ip){
     int count = 0;
     while ( (val = strsep(pch, ".")) && count < 4){
         total = total + atoi(val);
-        printf("%s",val);
         count = count + 1;
     }
-
-    printf("%d", total);
     return (total * 13) % 1111;
 }
 
@@ -129,12 +124,10 @@ int main(int argc, char *argv[])
 
     /* Test for correct number of arguments */
     if (argc == 1)  /* No Port specified */
-    {
-        printf("Using Default Server Port %d\n", SERVER_PORT);       
+    {             
 	    echoServPort = SERVER_PORT;
         
-    } else if (argc == 2){ /* Port specified */
-        printf("custom port"  );    
+    } else if (argc == 2){ /* Port specified */           
         echoServPort = atoi(argv[1]);  /* First arg:  local port */
     } else {
         printf("errorr");
@@ -146,8 +139,6 @@ int main(int argc, char *argv[])
         printf("socket() failed");
         exit(1);
 	}      
-
-    printf("SERVER UP AND Farting...");
 
     /* Construct local address structure */
     memset(&echoServAddr, 0, sizeof(echoServAddr));   /* Zero out structure */
@@ -167,8 +158,6 @@ int main(int argc, char *argv[])
         exit(1);
 	}
 
-    printf("SERVER UP AND RUNNING...");
-
     for (;;) /* Run forever */
     {
 		char *client_hello = malloc(CHUNK_SIZE);
@@ -178,7 +167,9 @@ int main(int argc, char *argv[])
         int cookie;
         char *cookie_str; 
         char *client_bye;
-        char *server_bye;
+        char *server_bye = malloc(255);
+        char *loginid = malloc(255);
+        char *name = malloc(255);
         /* Set the size of the in-out parameter */
         clntLen = sizeof(echoClntAddr);
 
@@ -188,21 +179,20 @@ int main(int argc, char *argv[])
             printf("accept() Failed");
             exit(1);
 		}
-        /* clntSock is connected to a client! */
+        /* clntSock is connected to a client! 
 
-        printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
+        printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr)); */
 
     	/*ssize_t numBytesRcvd = recv(clntSock, buffer, BUFSIZE, 0);*/
 
 
         /* Client HELLO */
 	    client_hello = receive_basic(clntSock);
-        printf("Client HELLO message is: %s", client_hello);
-        pch = strtok (client_hello, " ");        
-        while (pch != NULL){
-            printf ("%s\n",pch);
-            
+        printf("%s", client_hello);
 
+        pch = strtok(client_hello, " ");        
+        while (pch != NULL){                        
+            
             if (counter == 1){
                 if (strcmp(pch, MAGIC_STRING) != 0){
                     printf("%s, %s", pch, MAGIC_STRING);
@@ -220,6 +210,68 @@ int main(int argc, char *argv[])
                 }
             }    
 
+            if (counter == 3){
+                strcpy(loginid,pch);
+            }
+
+            if (counter == 4){
+                int len = strlen(pch);
+                pch[len-1] = '\0';
+                strcpy(name,pch);
+
+            }
+
+            if (counter >= 4){
+                break;
+            }
+
+            
+            counter = counter + 1;
+            
+            pch = strtok (NULL, " ");
+        }   
+
+
+        cookie = gen_cookie(inet_ntoa(echoClntAddr.sin_addr));
+
+        cookie_str = itoa(cookie, 10);
+
+        server_status = strcat(strcat(server_status," STATUS "),cookie_str);
+
+        server_status = strcat(strcat(strcat(strcat(server_status, " "),  inet_ntoa(echoClntAddr.sin_addr)), ":"), itoa(echoServPort, 10));
+
+        Writeline(clntSock, server_status, strlen(server_status));
+
+	    client_bye = receive_basic(clntSock);
+        
+        counter = 1;
+        pch = strtok (client_bye, " ");        
+        while (pch != NULL){
+            if (counter == 1){
+                if (strcmp(pch, MAGIC_STRING) != 0){
+                    printf("%s, %s", pch, MAGIC_STRING);
+                    printf("Magic Strings are not the same");
+                    return 0;                    
+                } else {
+                    server_status = pch;
+                }
+            }
+
+            if (counter == 2){
+                if (strcmp(pch, "CLIENT_BYE") != 0){
+                    printf("Badd bye message from client");
+                    return 0;
+                }
+            }    
+    
+            if (counter == 3){
+                if (atoi(pch) != cookie){
+                    printf("%s, %d", pch, cookie);
+                    printf("Client sent back a baddddd COOOKIE");
+                    return 0;
+                }
+            }
+
             if (counter >=3){
                 break;
             }
@@ -227,39 +279,18 @@ int main(int argc, char *argv[])
             
             counter = counter + 1;
             pch = strtok (NULL, " ");
-        }   
-
-        printf("prior cookie gen");        
-        cookie = gen_cookie(inet_ntoa(echoClntAddr.sin_addr));
-        printf("finished cookie gen. Cookie: %d", cookie );
-        cookie_str = itoa(cookie, 10);
-        printf("%s\n", cookie_str);
-        server_status = strcat(strcat(server_status," STATUS "),cookie_str);
-
-        server_status = strcat(strcat(strcat(strcat(server_status, " "),  inet_ntoa(echoClntAddr.sin_addr)), ":"), itoa(echoServPort, 10));
-
-        printf("%s",server_status);
-
-        Writeline(clntSock, server_status, strlen(server_status));
-
-	    client_bye = receive_basic(clntSock);
-
-        printf("\n\n%s\n\n", client_bye);
-        printf("\n\nwow\n\n");
-        server_bye = MAGIC_STRING;
-        printf("\nwow %s\n",server_bye);
-        printf("wow %s\n",server_bye);
         
-        server_bye = "cmsc417spring2015 SERVER_BYE";
+        }        
 
-        printf("wow %s\n",server_bye);
+        strcpy(server_bye, MAGIC_STRING);
 
-        printf("wow %s\n",server_bye);
+        strcat(server_bye, " SERVER_BYE");            
    
         Writeline(clntSock, server_bye, strlen(server_bye));
      
-            
-        break;
+        /* output -->  cookie loginid firstname ip:port */  
+        printf("%s", client_hello);
+        printf("%d %s from %s:%d", cookie, loginid, inet_ntoa(echoClntAddr.sin_addr), echoServPort);                   
         
 
     }

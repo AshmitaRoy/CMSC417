@@ -12,6 +12,9 @@ from threading import Thread
 import csv
 import sys
 import subprocess
+import multiprocessing
+import os
+
 
 servers_threads = []
 clients_threads = []
@@ -42,10 +45,17 @@ def read_client_csv(client_csv="./client_csv.csv"):
     finally:
         f.close()    
  
-def runcommand(cmd):
+def runcommand(cmd, name):
     ''' Runs a command in subprocess'''
-    print "THIS JUST FAKE RAN: " + cmd
-    #return subprocess.call(cmd)
+    print "THIS is running:" + cmd
+    
+    print sys.path
+    
+    
+    
+    out = open(name + ".out", "wb")
+    err = open(name + "_err.txt", "wb")
+    subprocess.Popen(cmd, shell=True, stdout=out, stderr=err)
    
 def start_servers():
     
@@ -53,25 +63,20 @@ def start_servers():
     for srvr in servers_dict.keys():
         
         # Command invokes server with port
-        command_string = "./server " + servers_dict[srvr][0]        
+        command_string = "/home/dylan/Desktop/GITHUBS/CMSC417/Projects/02/server " + servers_dict[srvr][0]        
         
-        # Creates thread that runs command
-        s = Thread(target=runcommand, args=(command_string,))
-        
-        # Adds to list of Server Threads
+        s = multiprocessing.Process(target=runcommand, args=(command_string, srvr,))
         servers_threads.append(s)
-        
-        # Starts Thread
-        s.start()     
+        s.start()                
         
 def start_clients():
     
     for clnt in clients_dict.keys():
         
-        command_string = "./client " + clients_dict[clnt][0] + " " + clients_dict[clnt][1] + " " + clients_dict[clnt][2] + " " + clients_dict[clnt][3] 
+        command_string = "/home/dylan/Desktop/GITHUBS/CMSC417/Projects/02/client " + clients_dict[clnt][0] + " " + clients_dict[clnt][1] + " " + clients_dict[clnt][2] + " " + clients_dict[clnt][3] 
                 
         # Creates thread that runs command
-        c = Thread(target=runcommand, args=(command_string,))
+        c = Thread(target=runcommand, args=(command_string, clnt))
     
         # Adds to list of Client Threads
         clients_threads.append(c)
@@ -86,8 +91,17 @@ if __name__=="__main__":
     print servers_dict
     print clients_dict
     
-    start_clients()
+    
     start_servers()
+    start_clients()
+    
     
     print servers_threads
     print clients_threads
+    
+    #time.sleep(10)
+    #for s in servers_threads:
+        #s.join()
+        
+    #for c in clients_threads:
+        #c.join()
