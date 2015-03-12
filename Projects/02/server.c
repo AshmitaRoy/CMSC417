@@ -14,6 +14,7 @@ Usage:
 #include <unistd.h>     /* for close() */
 #include <netdb.h>
 #include "common.h"	/* for Given Variables from common file */
+#include <errno.h>
 
 #define CHUNK_SIZE         (255)
 
@@ -25,11 +26,10 @@ void HandleTCPClient(int clntSocket);   /* TCP client handling function */
 credit given to Silver Moon
 http://www.binarytides.com/receive-full-data-with-recv-socket-function-in-c/
 */
-int receive_basic(int s)
+char *receive_basic(int s)
 {
     int size_recv , total_size= 0;
-    /*int CHUNK_SIZE = 512;*/
-    char chunk[CHUNK_SIZE];      
+    char *chunk = malloc(CHUNK_SIZE);      
 
     do 
     {
@@ -47,17 +47,69 @@ int receive_basic(int s)
         printf("Here is the message: %s", chunk);        
 
         
-        if (total_size >= CHUNK_SIZE){
-            break;
-        }
-        size_recv = 0;
+        return chunk;
 
     }
     while (size_recv > 0);
 
-    printf("out of do while loop");
+    return "out of do while loop";
 
-    return total_size;
+}
+
+char* itoa(int val, int base){
+	
+	static char buf[32] = {0};
+	
+	int i = 30;
+	
+	for(; val && i ; --i, val /= base)
+	
+		buf[i] = "0123456789abcdef"[val % base];
+	
+	return &buf[i+1];
+	
+}
+
+int gen_cookie(char * client_ip){  
+    char **pch = &client_ip;
+    char * val;
+    int total = 0;
+    int count = 0;
+    while ( (val = strsep(pch, ".")) && count < 4){
+        total = total + atoi(val);
+        printf("%s",val);
+        count = count + 1;
+    }
+
+    printf("%d", total);
+    return (total * 13) % 1111;
+}
+
+/* 
+credit given to Paul Griffiths 
+http://www.paulgriffiths.net/program/c/echoclnt.php
+Some of this code was taken from his echoclnt.c */
+/*  Write a line to a socket  */
+ssize_t Writeline(int sockd, const void *vptr, size_t n) {
+    size_t      nleft;
+    ssize_t     nwritten;
+    const char *buffer;
+
+    buffer = vptr;
+    nleft  = n;
+
+    while ( nleft > 0 ) {
+	if ( (nwritten = write(sockd, buffer, nleft)) <= 0 ) {
+	    if ( errno == EINTR )
+		nwritten = 0;
+	    else
+		return -1;
+	}
+	nleft  -= nwritten;
+	buffer += nwritten;
+    }
+
+    return n;
 }
 
 int main(int argc, char *argv[])
@@ -65,9 +117,11 @@ int main(int argc, char *argv[])
     int servSock;                    /* Socket descriptor for server */
     int clntSock;                    /* Socket descriptor for client */
     struct sockaddr_in echoServAddr; /* Local address */
-    struct sockaddr_in echoClntAddr; /* Client address */
+    struct sockaddr_in echoClntAddr; /* Clent address */
     unsigned short echoServPort;     /* Server port */
     unsigned int clntLen;            /* Length of client address data structure */
+
+    
 
     /*struct hostent * hostname;*/
     /*char buffer[CHUNK_SIZE];*/
@@ -117,7 +171,13 @@ int main(int argc, char *argv[])
 
     for (;;) /* Run forever */
     {
-		int msg_size = 0;
+		char *client_hello = malloc(CHUNK_SIZE);
+        char *pch;
+        int counter = 1;
+        char *server_status;
+        int cookie;
+        char *cookie_str; 
+        char * client_bye, * server_bye;
         /* Set the size of the in-out parameter */
         clntLen = sizeof(echoClntAddr);
 
@@ -132,12 +192,70 @@ int main(int argc, char *argv[])
         printf("Handling client %s\n", inet_ntoa(echoClntAddr.sin_addr));
 
     	/*ssize_t numBytesRcvd = recv(clntSock, buffer, BUFSIZE, 0);*/
-	    msg_size = receive_basic(clntSock);
-        printf("Message size is: %d", msg_size);
-        printf("hello");
+
+
+        /* Client HELLO */
+	    client_hello = receive_basic(clntSock);
+        printf("Client HELLO message is: %s", client_hello);
+        pch = strtok (client_hello, " ");        
+        while (pch != NULL){
+            printf ("%s\n",pch);
+            
+
+            if (counter == 1){
+                if (strcmp(pch, "cmsc417spring2015") != 0){
+                    printf("%s, %s", pch, MAGIC_STRING);
+                    printf("Magic Strings are not the same");
+                    return 0;                    
+                } else {
+                    server_status = pch;
+                }
+            }
+
+            if (counter == 2){
+                if (strcmp(pch, "HELLO") != 0){
+                    printf("Badd hello message from client");
+                    return 0;
+                }
+            }    
+
+            if (counter >=3){
+                break;
+            }
+
+            
+            counter = counter + 1;
+            pch = strtok (NULL, " ");
+        }   
+
+        printf("prior cookie gen");        
+        cookie = gen_cookie(inet_ntoa(echoClntAddr.sin_addr));
+        printf("finished cookie gen. Cookie: %d", cookie );
+        cookie_str = itoa(cookie, 10);
+        printf("%s\n", cookie_str);
+        server_status = strcat(strcat(server_status," STATUS "),cookie_str);
+
+        server_status = strcat(strcat(strcat(strcat(server_status, " "),  inet_ntoa(echoClntAddr.sin_addr)), ":"), itoa(echoServPort, 10));
+
+        printf("%s",server_status);
+
+        Writeline(clntSock, server_status, strlen(server_status));
+
+	    client_bye = receive_basic(clntSock);
+
+        printf("\n\n%s\n\n", client_bye);
+
+        server_bye = MAGIC_STRING;
+    
+        server_bye = strcat(server_bye, " SERVER_BYE"); 
+
+        printf("%s",server_bye);
+    
+        Writeline(clntSock, server_bye, strlen(server_bye));
+       
+            
         break;
         
-
 
     }
     /* NOT REACHED */
