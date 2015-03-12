@@ -177,7 +177,8 @@ int main(int argc, char *argv[])
         char *server_status;
         int cookie;
         char *cookie_str; 
-        char * client_bye, * server_bye;
+        char *client_bye;
+        char *server_bye;
         /* Set the size of the in-out parameter */
         clntLen = sizeof(echoClntAddr);
 
@@ -203,7 +204,7 @@ int main(int argc, char *argv[])
             
 
             if (counter == 1){
-                if (strcmp(pch, "cmsc417spring2015") != 0){
+                if (strcmp(pch, MAGIC_STRING) != 0){
                     printf("%s, %s", pch, MAGIC_STRING);
                     printf("Magic Strings are not the same");
                     return 0;                    
@@ -244,15 +245,19 @@ int main(int argc, char *argv[])
 	    client_bye = receive_basic(clntSock);
 
         printf("\n\n%s\n\n", client_bye);
-
+        printf("\n\nwow\n\n");
         server_bye = MAGIC_STRING;
-    
-        server_bye = strcat(server_bye, " SERVER_BYE"); 
+        printf("\nwow %s\n",server_bye);
+        printf("wow %s\n",server_bye);
+        
+        server_bye = "cmsc417spring2015 SERVER_BYE";
 
-        printf("%s",server_bye);
-    
+        printf("wow %s\n",server_bye);
+
+        printf("wow %s\n",server_bye);
+   
         Writeline(clntSock, server_bye, strlen(server_bye));
-       
+     
             
         break;
         
