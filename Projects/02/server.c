@@ -6,6 +6,7 @@ Purpose: TCP client side socket
 Usage:
 ***/
 
+
 #include <stdio.h>      /* for printf() and fprintf() */
 #include <sys/socket.h> /* for socket(), bind(), and connect() */
 #include <arpa/inet.h>  /* for sockaddr_in and inet_ntoa() */
@@ -188,8 +189,8 @@ int main(int argc, char *argv[])
 
         /* Client HELLO */
 	    client_hello = receive_basic(clntSock);
-        printf("%s", client_hello);
-
+        sleep(1);
+ 
         pch = strtok(client_hello, " ");        
         while (pch != NULL){                        
             
@@ -227,10 +228,10 @@ int main(int argc, char *argv[])
 
             
             counter = counter + 1;
+
             
             pch = strtok (NULL, " ");
         }   
-
 
         cookie = gen_cookie(inet_ntoa(echoClntAddr.sin_addr));
 
@@ -289,9 +290,13 @@ int main(int argc, char *argv[])
         Writeline(clntSock, server_bye, strlen(server_bye));
      
         /* output -->  cookie loginid firstname ip:port */  
-        printf("%s", client_hello);
         printf("%d %s from %s:%d", cookie, loginid, inet_ntoa(echoClntAddr.sin_addr), echoServPort);                   
         
+	shutdown(clntSock,2);
+
+	/*printf("Client Socket Shutdown, Now exiting");*/
+
+    exit(1);
 
     }
     /* NOT REACHED */

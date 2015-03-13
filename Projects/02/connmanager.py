@@ -23,6 +23,9 @@ clients_threads = []
 servers_dict = {}
 clients_dict = {} 
 
+PATH_TO_FILE = os.path.abspath(os.path.dirname(__file__))
+print PATH_TO_FILE
+
 def read_server_csv(server_csv="./server_csv.csv"):
     #f = open(sys.argv[1], 'rt') ## Good line '''sys.argv[1]'''
     f = open('./servers_csv.csv', 'rt')
@@ -63,7 +66,7 @@ def start_servers():
     for srvr in servers_dict.keys():
         
         # Command invokes server with port
-        command_string = "/home/dylan/Desktop/GITHUBS/CMSC417/Projects/02/server " + servers_dict[srvr][0]        
+        command_string = PATH_TO_FILE + "/server " + servers_dict[srvr][0]        
         
         s = multiprocessing.Process(target=runcommand, args=(command_string, srvr,))
         servers_threads.append(s)
@@ -73,7 +76,7 @@ def start_clients():
     
     for clnt in clients_dict.keys():
         
-        command_string = "/home/dylan/Desktop/GITHUBS/CMSC417/Projects/02/client " + clients_dict[clnt][0] + " " + clients_dict[clnt][1] + " " + clients_dict[clnt][2] + " " + clients_dict[clnt][3] 
+        command_string = PATH_TO_FILE + "/client " + clients_dict[clnt][0] + " " + clients_dict[clnt][1] + " " + clients_dict[clnt][2] + " " + clients_dict[clnt][3] 
                 
         # Creates thread that runs command
         c = Thread(target=runcommand, args=(command_string, clnt))
@@ -93,15 +96,18 @@ if __name__=="__main__":
     
     
     start_servers()
+    time.sleep(2)
     start_clients()
     
     
     print servers_threads
     print clients_threads
     
-    #time.sleep(10)
-    #for s in servers_threads:
-        #s.join()
+    time.sleep(4)
+    for s in servers_threads:
+        s.terminate()
+        s.join()
+        print s.is_alive()
         
-    #for c in clients_threads:
-        #c.join()
+    for c in clients_threads:
+        c.join()
